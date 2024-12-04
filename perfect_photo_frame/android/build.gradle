@@ -1,0 +1,60 @@
+buildscript {
+    repositories {
+        google()
+     // Deprecated but still functional for older dependencies
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.0.1'
+
+        // NOTE: Do not place your application dependencies here; they belong in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.buildDir = '../build'
+
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+    project.evaluationDependsOn(':app')
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
+
+// Adding compatibility for Java 21 and Gradle 8.3+
+allprojects {
+    tasks.withType(JavaCompile) {
+        options.release = 21 // Specifies Java 21 compatibility
+    }
+}
+
+// Gradle performance optimizations
+gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8" // Ensures consistent encoding
+    }
+    tasks.withType(Test) {
+        useJUnitPlatform() // Enables modern JUnit platform support
+    }
+}
+
+// Enforcing dependency versions to avoid conflicts
+allprojects {
+    configurations.all {
+        resolutionStrategy {
+            failOnVersionConflict()
+        }
+    }
+}
+
+// Define a clean task for the root project
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
